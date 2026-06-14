@@ -28,6 +28,7 @@ from reportlab.platypus import (
     TableStyle,
 )
 
+from .. import config
 from .fonts import resolve_fonts
 from .flats import build_sketches
 from .grading import GradedTechPack
@@ -159,7 +160,10 @@ def write_pdf(pack: GradedTechPack, path: str | Path, lang: str = "en") -> Path:
         )
     story += _section(_t(lang, "bom"), _bom_table(brief, fonts, lang), fonts)
     story += _section(_t(lang, "construction"), _construction(brief, fonts), fonts)
-    story += _flats_page(pack, fonts, lang)
+    # The parametric flats are generic and may not match a specific garment, so
+    # they're off by default. Graded measurements are already in the table above.
+    if config.INCLUDE_FLATS:
+        story += _flats_page(pack, fonts, lang)
     doc.build(story)
     return path
 

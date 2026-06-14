@@ -7,7 +7,7 @@
 **Location:** `~/Desktop/imago website/Autonomous AI Agents for Sale`
 **Status:** Working CLI **and web app**, verified end-to-end live (CLI on real photos; web app on a live notes→PDF run). Web app is deploy-ready; going live needs the owner's host/domain/Stripe accounts.
 **Last updated:** 2026-06-14
-**Tests:** 82 passing, fully offline (no API key/network needed) — 65 core + 17 web.
+**Tests:** 84 passing, fully offline (no API key/network needed).
 
 ---
 
@@ -18,7 +18,7 @@
 - **Grading** (`src/techpack/grading.py`) — grades the base spec across a chosen size run; `value(size) = base + grade × steps`.
 - **Size systems** (`src/techpack/sizes.py`) — `alpha` (XXS–XXXL), `eu-women` (32–50), `eu-men` (44–58).
 - **European standards** (`src/techpack/standards.py`) — EN 13402 / EN ISO 8559 body-measurement charts per EU size, rendered into the PDF as a reference size chart.
-- **Parametric flat-sketch engine** (`src/techpack/flats.py`) — generates clean, symmetric, correctly-proportioned **front + back technical flats** in code (mirrored about centre front), covering **tops, dresses, trousers, skirts** with options (fit, neckline, sleeve, opening, hem, cuff, pocket, buttons, waistband, fly). Places POM code letters at named anchor points.
+- **Parametric flat-sketch engine** (`src/techpack/flats.py`) — generates clean, symmetric front + back technical flats in code (tops, dresses, trousers, skirts). **Off by default in the PDF** (`ATELIER_INCLUDE_FLATS=1` to re-enable): the silhouettes are *generic* and were judged not to faithfully represent specific garments (e.g. a fitted ribbed-waist cardigan rendered as a boxy top), so they hurt credibility more than they help. Graded measurements are in the POM table regardless. The engine + label de-collision are kept and tested for when faithful, garment-specific silhouettes exist.
 - **Sketch renderer** (`src/techpack/sketch.py`) — pure-Python SVG-path → ReportLab vector renderer with the standard **line-weight hierarchy** (outline → seam → dashed topstitch → rib hatching). No SVG system libraries required.
 - **Documents** (`src/techpack/documents.py`) — generates the **PDF tech pack** (cover, design notes, graded POM table, EN 13402 size chart for EU runs, BOM, construction notes, final flats page with the size table) and the **POM CSV**. Fully localized EN/BG.
 - **Cyrillic fonts** (`src/techpack/fonts.py`) — resolves a Cyrillic-capable TTF so Bulgarian PDFs render (bundled DejaVu / system Arial Unicode), falls back to Helvetica for English.

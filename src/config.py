@@ -24,6 +24,12 @@ MAX_REVISIONS = int(os.environ.get("AGENT_MAX_REVISIONS", "3"))
 # Set ATELIER_DESIGNER_JSON_MODE=0 to force the native structured path instead.
 DESIGNER_JSON_MODE = os.environ.get("ATELIER_DESIGNER_JSON_MODE", "1") not in ("0", "false", "False")
 
+# Include parametric technical-flat drawings in the PDF. Off by default: the
+# engine draws generic silhouettes that may not match a specific garment, and the
+# graded measurements already appear as a table. Set ATELIER_INCLUDE_FLATS=1 to
+# re-enable (e.g. if the flat engine gains faithful, garment-specific silhouettes).
+INCLUDE_FLATS = os.environ.get("ATELIER_INCLUDE_FLATS", "0") in ("1", "true", "True")
+
 # Hard cap on tool-call iterations within a single Executor run (loop guard).
 MAX_TOOL_ITERATIONS = int(os.environ.get("AGENT_MAX_TOOL_ITERATIONS", "12"))
 

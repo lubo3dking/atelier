@@ -218,8 +218,11 @@ def test_sketch_labels_never_overlap():
                 )
 
 
-def test_pdf_top_includes_parametric_flats(tmp_path):
+def test_pdf_top_includes_parametric_flats(tmp_path, monkeypatch):
+    # Flats are off by default; force them on to cover the rendering path.
+    from src import config
     from src.schemas import SketchSpec
+    monkeypatch.setattr(config, "INCLUDE_FLATS", True)
     brief = _brief()
     brief.sketch_spec = SketchSpec(silhouette="top", opening="full", hem="rib", buttons=6)
     brief.points_of_measure[0].anchor = "chest"
@@ -229,12 +232,20 @@ def test_pdf_top_includes_parametric_flats(tmp_path):
     assert len(data) > 3000
 
 
-def test_pdf_bottom_silhouette_generates(tmp_path):
+def test_pdf_bottom_silhouette_generates(tmp_path, monkeypatch):
+    from src import config
     from src.schemas import SketchSpec
+    monkeypatch.setattr(config, "INCLUDE_FLATS", True)
     brief = _brief()
     brief.sketch_spec = SketchSpec(silhouette="bottom", fly=True)
     pack = grade(brief, ["S", "M"])
     assert write_pdf(pack, tmp_path / "b.pdf").read_bytes().startswith(b"%PDF")
+
+
+def test_pdf_omits_flats_by_default(tmp_path):
+    # Default: no flats page. PDF is still valid and contains the graded table.
+    pack = grade(_brief(), ["S", "M", "L"])
+    assert write_pdf(pack, tmp_path / "noflats.pdf").read_bytes().startswith(b"%PDF")
 
 
 # --- designer agent ---------------------------------------------------------

@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+.pytest_cache/
+workspace/
+memory/runs.json
+.DS_Store
+
+# Inspiration photos (may be proprietary) — keep the folder, ignore the images
+refs/*
+!refs/README.md

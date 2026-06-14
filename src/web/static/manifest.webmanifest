@@ -1,0 +1,15 @@
+{
+  "name": "Atelier — tech packs",
+  "short_name": "Atelier",
+  "description": "Turn inspiration photos + notes into a sewer-ready tech pack.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f5f8",
+  "theme_color": "#6366f1",
+  "icons": [
+    { "src": "/atelier-icon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },
+    { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any maskable" }
+  ]
+}

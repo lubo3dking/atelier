@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Atelier — Design Preview</title>
+<style>
+  :root{
+    --canvas:#f4f5f8; --surface:#ffffff; --ink:#1e2230; --muted:#7c8398;
+    --line:#e7e9f0; --accent:#6366f1; --accent-d:#4f46e5; --accent-soft:#eef0fe;
+    --coral:#ff6b5e; --coral-soft:#ffede9; --ok:#16a34a; --warn:#f59e0b;
+    --shadow:0 10px 30px rgba(28,30,70,.07); --shadow-sm:0 4px 14px rgba(28,30,70,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--canvas);color:var(--ink);
+       font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1140px;margin:0 auto;padding:40px 24px 80px}
+  /* brand */
+  header.brand{display:flex;align-items:center;gap:18px;margin-bottom:6px}
+  .icon{width:76px;height:76px;border-radius:20px;box-shadow:var(--shadow)}
+  h1{font-size:32px;margin:0;letter-spacing:-.4px;font-weight:800}
+  h1 b{color:var(--accent)}
+  .tag{color:var(--muted);margin:3px 0 0;font-size:15.5px}
+  .pill{display:inline-flex;align-items:center;gap:7px;margin-top:12px;padding:6px 14px;
+        background:var(--surface);border:1px solid var(--line);border-radius:999px;
+        color:var(--accent-d);font-size:12.5px;font-weight:600;box-shadow:var(--shadow-sm)}
+  .pill .d{width:8px;height:8px;border-radius:50%;background:var(--coral)}
+  .langsw{margin-left:auto;align-self:flex-start;display:flex;gap:3px;background:#fff;
+          border:1px solid var(--line);border-radius:999px;padding:4px;box-shadow:var(--shadow-sm)}
+  .langsw button{border:0;background:transparent;font-weight:700;font-size:12.5px;color:var(--muted);
+                 padding:7px 14px;border-radius:999px;cursor:pointer}
+  .langsw button.on{background:var(--accent);color:#fff}
+  h2.section{font-size:12.5px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);
+        margin:46px 0 18px;font-weight:700}
+  .flowbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-6px 0 22px;color:var(--muted);font-size:13.5px}
+  .flowbar b{color:var(--ink)}
+  .step{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:7px 13px;box-shadow:var(--shadow-sm)}
+  .flowbar .a{color:var(--accent)}
+  /* phones */
+  .phones{display:flex;gap:26px;flex-wrap:wrap;justify-content:center}
+  .phone{width:312px;background:#fff;border:1px solid var(--line);border-radius:38px;
+         padding:12px;box-shadow:var(--shadow)}
+  .screen{background:var(--canvas);border-radius:28px;overflow:hidden;height:580px;display:flex;flex-direction:column}
+  .notch{height:24px;display:flex;justify-content:center;background:#fff}
+  .notch::after{content:"";width:110px;height:16px;background:#eef0f6;border-radius:0 0 12px 12px}
+  .scr-pad{padding:14px 16px 16px;flex:1;display:flex;flex-direction:column;background:#fff}
+  .scr-h{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .scr-h .dot{width:26px;height:26px;border-radius:8px;background:var(--accent-soft);
+              display:flex;align-items:center;justify-content:center}
+  .scr-h .dot svg{width:15px;height:15px;stroke:var(--accent)}
+  .scr-h b{font-size:15px}
+  .scr-h span{margin-left:auto;color:var(--muted);font-size:11.5px}
+  .label{font-size:11.5px;color:var(--muted);font-weight:600;margin:2px 0 8px;letter-spacing:.2px}
+  /* screen 1: inspiration upload */
+  .grid-insp{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .thumb{aspect-ratio:1/1.05;border-radius:13px;border:1px solid var(--line);overflow:hidden;
+         display:flex;align-items:center;justify-content:center;background:#f7f8fb;position:relative}
+  .thumb svg{width:54%;height:54%;stroke:#aeb6cc;fill:none;stroke-width:5}
+  .thumb.add{border:1.5px dashed #c7cee0;color:var(--accent);font-size:26px;background:#fbfcff}
+  .thumb .tagx{position:absolute;top:6px;left:6px;font-size:9px;background:#fff;border:1px solid var(--line);
+               border-radius:6px;padding:1px 6px;color:var(--muted)}
+  .notes{margin-top:13px;background:#f7f8fb;border:1px solid var(--line);border-radius:13px;padding:11px 12px;flex:1}
+  .notes .lab{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+  .notes p{margin:7px 0 0;font-size:12.7px;color:#3a4156;line-height:1.5}
+  .notes .cursor{color:var(--accent)}
+  .cta{margin-top:13px;background:var(--accent);color:#fff;border:0;border-radius:13px;
+       padding:14px;font-weight:700;font-size:14.5px;box-shadow:0 8px 18px rgba(99,102,241,.32)}
+  /* size run chips */
+  .sizes{display:flex;flex-wrap:wrap;gap:9px}
+  .chip{min-width:44px;text-align:center;padding:11px 0;border-radius:11px;border:1px solid var(--line);
+        background:#fff;font-weight:700;font-size:13px;color:#3a4156;position:relative;flex:1}
+  .chip.on{background:var(--accent-soft);border-color:#c7cbf7;color:var(--accent-d)}
+  .chip.base{background:var(--accent);border-color:var(--accent);color:#fff}
+  .chip .b{position:absolute;top:-7px;right:-5px;background:var(--coral);color:#fff;font-size:8px;
+           padding:1px 5px;border-radius:6px;font-weight:700}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:11px;line-height:1.5}
+  .hint b{color:#3a4156}
+  /* screen 2: technical sketch */
+  .sketchwrap{flex:1;border:1px solid var(--line);border-radius:16px;background:
+      linear-gradient(#fff,#fff) padding-box,
+      repeating-linear-gradient(0deg,#f2f3f8,#f2f3f8 1px,transparent 1px,transparent 22px),
+      repeating-linear-gradient(90deg,#f2f3f8,#f2f3f8 1px,transparent 1px,transparent 22px);
+      position:relative;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px}
+  .sketchwrap svg{height:74%}
+  .pin{position:absolute;background:var(--coral);color:#fff;font-size:9px;font-weight:700;
+       border-radius:6px;padding:2px 6px;box-shadow:var(--shadow-sm)}
+  .seg{display:flex;gap:7px;margin-top:12px}
+  .seg button{flex:1;font-size:12px;padding:9px;border-radius:10px;border:1px solid var(--line);
+              background:#fff;color:#3a4156;font-weight:600}
+  .seg button.on{background:var(--accent-soft);border-color:#c7cbf7;color:var(--accent-d)}
+  /* screen 3: tech pack */
+  .doc{flex:1;overflow:auto}
+  .doc h3{margin:0 0 1px;font-size:15px}
+  .doc .sub{color:var(--muted);font-size:11.5px;margin-bottom:11px}
+  .blk{border:1px solid var(--line);border-radius:13px;padding:11px 12px;margin-bottom:10px;background:#fff;box-shadow:var(--shadow-sm)}
+  .blk .bh{font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;margin-bottom:7px}
+  table{width:100%;border-collapse:collapse;font-size:11px}
+  th{text-align:left;color:var(--muted);font-weight:600;padding:3px 4px;border-bottom:1px solid var(--line)}
+  td{padding:4px;border-bottom:1px solid #f1f2f7;font-variant-numeric:tabular-nums}
+  td.pom{color:var(--accent);font-weight:700;width:20px}
+  .bom li{font-size:11.5px;color:#3a4156;margin:3px 0;list-style:none;display:flex;gap:7px}
+  .bom li::before{content:"";width:9px;height:9px;border-radius:3px;background:var(--accent-soft);margin-top:4px}
+  .bom{padding:0;margin:0}
+  .dl{display:flex;gap:7px;margin-top:4px}
+  .dl span{flex:1;text-align:center;font-size:10.5px;background:var(--accent-soft);color:var(--accent-d);
+           border-radius:9px;padding:8px 4px;font-weight:700}
+  /* cards row */
+  .grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:22px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px 22px;box-shadow:var(--shadow-sm)}
+  .card h4{margin:0 0 12px;font-size:14.5px}
+  .pipe{display:flex;align-items:stretch;gap:9px;flex-wrap:wrap}
+  .node{flex:1;min-width:120px;background:#fafbff;border:1px solid var(--line);border-radius:12px;padding:11px 13px;font-size:12.5px}
+  .node b{display:block;color:var(--accent-d);margin-bottom:2px}
+  .node small{color:var(--muted)}
+  .swatches{display:flex;gap:10px;flex-wrap:wrap}
+  .sw{width:58px;height:58px;border-radius:12px;border:1px solid #00000010;display:flex;align-items:flex-end;
+      justify-content:center;font-size:9px;padding-bottom:4px;font-weight:600}
+  .note{margin-top:16px;font-size:13px;color:#3a4156;background:var(--coral-soft);
+        border-left:3px solid var(--coral);padding:11px 15px;border-radius:0 12px 12px 0}
+  .note b{color:#c0392b}
+  footer{margin-top:46px;color:var(--muted);font-size:12px;text-align:center}
+  @media(max-width:720px){.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="brand">
+    <svg class="icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="t" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#eef0f8"/></linearGradient></defs>
+      <rect width="512" height="512" rx="116" fill="url(#t)"/>
+      <rect x="3" y="3" width="506" height="506" rx="114" fill="none" stroke="#e3e6f1" stroke-width="2"/>
+      <g fill="none" stroke="#6366f1" stroke-width="14" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M196 150 L150 176 L122 232 L160 256 L176 230 L176 360 Q176 372 188 372 L324 372 Q336 372 336 360 L336 230 L352 256 L390 232 L362 176 L316 150 Q256 188 196 150 Z"/>
+        <path d="M196 150 Q256 196 316 150"/>
+      </g>
+      <g stroke="#ff6b5e" stroke-width="9" stroke-linecap="round">
+        <line x1="206" y1="406" x2="306" y2="406"/><line x1="206" y1="398" x2="206" y2="414"/><line x1="306" y1="398" x2="306" y2="414"/>
+      </g>
+      <circle cx="256" cy="120" r="9" fill="#ff6b5e"/>
+    </svg>
+    <div>
+      <h1>Atelier<b>.</b></h1>
+      <p class="tag">Inspiration in. Sewer-ready tech sketches out.</p>
+      <span class="pill"><span class="d"></span> For brand owners — upload references + notes, get technical flats &amp; a tech pack</span>
+    </div>
+    <div class="langsw" title="Output language — brief and PDF documents">
+      <button class="on">EN</button><button>BG</button>
+    </div>
+  </header>
+
+  <h2 class="section">The flow</h2>
+  <div class="flowbar">
+    <span class="step">📸 <b>Inspiration photos</b></span><span class="a">+</span>
+    <span class="step">✍️ <b>Design notes</b></span><span class="a">+</span>
+    <span class="step">📏 <b>Size run</b></span><span class="a">→</span>
+    <span class="step a"><b>Atelier AI</b></span><span class="a">→</span>
+    <span class="step">📐 <b>Technical flat sketch</b></span><span class="a">+</span>
+    <span class="step">📄 <b>Tech pack for the sewer</b></span>
+  </div>
+
+  <h2 class="section">App preview — four core screens</h2>
+  <div class="phones">
+
+    <!-- Screen 1: Inspiration + notes -->
+    <div class="phone"><div class="screen">
+      <div class="notch"></div>
+      <div class="scr-pad">
+        <div class="scr-h">
+          <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 15l5-4 4 3 4-5 5 6"/></svg></span>
+          <b>New design</b><span>Step 1 of 3</span>
+        </div>
+        <div class="label">INSPIRATION REFERENCES</div>
+        <div class="grid-insp">
+          <div class="thumb"><span class="tagx">collar</span><svg viewBox="0 0 60 60"><path d="M20 12 L12 18 L8 30 L16 33 M40 12 L48 18 L52 30 L44 33 M16 33 L16 50 L44 50 L44 33 M20 12 Q30 22 40 12"/></svg></div>
+          <div class="thumb"><span class="tagx">silhouette</span><svg viewBox="0 0 60 60"><path d="M22 10 L14 16 L18 30 M38 10 L46 16 L42 30 M22 10 Q30 16 38 10 M18 28 L16 52 L44 52 L42 28"/></svg></div>
+          <div class="thumb"><span class="tagx">cuff detail</span><svg viewBox="0 0 60 60"><path d="M14 14 L46 14 L44 46 L16 46 Z M14 14 L30 26 L46 14 M22 40 L38 40"/></svg></div>
+          <div class="thumb add">+</div>
+        </div>
+        <div class="notes">
+          <div class="lab">Design notes</div>
+          <p>Oversized boxy fit, dropped shoulder. Camp collar like ref 1. Chest patch pocket. Cuban-style short sleeve, ~24cm opening. Fabric: linen-cotton.<span class="cursor">▏</span></p>
+        </div>
+        <button class="cta">Choose sizes →</button>
+      </div>
+    </div></div>
+
+    <!-- Screen 2: Size run -->
+    <div class="phone"><div class="screen">
+      <div class="notch"></div>
+      <div class="scr-pad">
+        <div class="scr-h">
+          <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 7h18v10H3z"/><path d="M7 7v4M11 7v6M15 7v4M19 7v6"/></svg></span>
+          <b>Size run</b><span>Step 2 of 3</span>
+        </div>
+        <div class="label">WHICH SIZES TO PRODUCE</div>
+        <div class="sizes">
+          <div class="chip">XXS</div>
+          <div class="chip on">XS</div>
+          <div class="chip on">S</div>
+          <div class="chip base">M<span class="b">base</span></div>
+          <div class="chip on">L</div>
+          <div class="chip on">XL</div>
+          <div class="chip on">XXL</div>
+          <div class="chip">XXXL</div>
+        </div>
+        <p class="hint">Tap to include a size. The <b>base</b> size is graded up and down across the run — every point of measure scales automatically.</p>
+        <div class="label" style="margin-top:16px">LIVE PREVIEW · CHEST (½)</div>
+        <div class="notes" style="flex:0">
+          <p style="margin:0">XS 58 · S 60 · <b style="color:var(--accent-d)">M 62</b> · L 64 · XL 66 · XXL 68 cm</p>
+        </div>
+        <button class="cta">Generate tech pack →</button>
+      </div>
+    </div></div>
+
+    <!-- Screen 3: Technical sketch -->
+    <div class="phone"><div class="screen">
+      <div class="notch"></div>
+      <div class="scr-pad">
+        <div class="scr-h">
+          <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M4 9h16M9 4v16"/></svg></span>
+          <b>Technical flat</b><span>auto-generated</span>
+        </div>
+        <div class="label">CAMP-COLLAR SHIRT · FRONT</div>
+        <div class="sketchwrap">
+          <svg viewBox="0 0 120 180" fill="none" stroke="#2e3550" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">
+            <path d="M40 22 L20 34 L10 62 L24 70 L32 58 L32 150 Q32 156 38 156 L82 156 Q88 156 88 150 L88 58 L96 70 L110 62 L100 34 L80 22 Q60 40 40 22 Z"/>
+            <path d="M40 22 Q60 44 80 22"/>
+            <path d="M60 30 L60 150" stroke-dasharray="3 3" stroke-width="1.4"/>
+            <rect x="44" y="64" width="16" height="20" rx="2"/>
+          </svg>
+          <div class="pin" style="top:18px;left:14px">camp collar</div>
+          <div class="pin" style="top:78px;right:10px">dropped shoulder</div>
+          <div class="pin" style="bottom:28px;left:12px">patch pocket</div>
+        </div>
+        <div class="seg">
+          <button class="on">Front</button>
+          <button>Back</button>
+          <button>Detail</button>
+        </div>
+      </div>
+    </div></div>
+
+    <!-- Screen 4: Tech pack -->
+    <div class="phone"><div class="screen">
+      <div class="notch"></div>
+      <div class="scr-pad">
+        <div class="scr-h">
+          <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5M9 13h6M9 17h6"/></svg></span>
+          <b>Tech pack</b><span>ready to send</span>
+        </div>
+        <div class="doc">
+          <h3>Camp-Collar Shirt — ATL-031</h3>
+          <div class="sub">Base size M · linen-cotton · 2026-06-13</div>
+          <div class="blk">
+            <div class="bh">Points of measure (M)</div>
+            <table>
+              <tr><th>#</th><th>Point</th><th>cm</th><th>Tol</th></tr>
+              <tr><td class="pom">A</td><td>Body length (HPS)</td><td>74.0</td><td>±1.0</td></tr>
+              <tr><td class="pom">B</td><td>Chest (½, below scye)</td><td>62.0</td><td>±1.0</td></tr>
+              <tr><td class="pom">C</td><td>Across shoulder</td><td>52.0</td><td>±0.6</td></tr>
+              <tr><td class="pom">D</td><td>Sleeve opening</td><td>24.0</td><td>±0.5</td></tr>
+            </table>
+          </div>
+          <div class="blk">
+            <div class="bh">Bill of materials</div>
+            <ul class="bom">
+              <li>Shell — linen/cotton 55/45, 180 gsm</li>
+              <li>Buttons — corozo, 15 mm × 7</li>
+              <li>Interlining — collar &amp; placket, fusible</li>
+            </ul>
+          </div>
+          <div class="blk">
+            <div class="bh">Construction</div>
+            <table><tr><td>French seams · 1 cm SA · 2.5 cm hem · bartack pocket corners</td></tr></table>
+          </div>
+          <div class="dl"><span>PDF tech pack</span><span>POM .csv</span><span>DXF</span></div>
+        </div>
+      </div>
+    </div></div>
+
+  </div>
+
+  <h2 class="section">Under the hood &nbsp;·&nbsp; your Planner → Executor → Reviewer loop</h2>
+  <div class="grid2">
+    <div class="card">
+      <h4>How a design becomes a tech pack</h4>
+      <div class="pipe">
+        <div class="node"><b>Planner</b><small>Reads inspiration photos + notes → a structured design brief (garment, details, fit).</small></div>
+        <div class="node"><b>Executor</b><small>Claude vision drafts the flat sketch + POM/BOM/construction from references.</small></div>
+        <div class="node"><b>Reviewer</b><small>Checks the pack is complete &amp; consistent; flags gaps for one more question.</small></div>
+      </div>
+      <div class="note"><b>Honest scope:</b> Atelier produces a strong first-draft tech pack from references — not a guaranteed production pattern. A human approval step + the sewer's sample/fitting stays in the loop, exactly as in real product development.</div>
+    </div>
+    <div class="card">
+      <h4>Modern palette</h4>
+      <div class="swatches">
+        <div class="sw" style="background:#6366f1;color:#fff">#6366F1</div>
+        <div class="sw" style="background:#eef0fe;color:#4f46e5">#EEF0FE</div>
+        <div class="sw" style="background:#ff6b5e;color:#fff">#FF6B5E</div>
+        <div class="sw" style="background:#f4f5f8;color:#7c8398">#F4F5F8</div>
+        <div class="sw" style="background:#1e2230;color:#fff">#1E2230</div>
+      </div>
+      <h4 style="margin:18px 0 10px">Outputs a sewer accepts</h4>
+      <div class="pipe">
+        <div class="node"><b>PDF tech pack</b><small>flats, POM, BOM · English or Bulgarian</small></div>
+        <div class="node"><b>POM .csv</b><small>measurements + tolerances</small></div>
+        <div class="node"><b>DXF / tiled PDF</b><small>optional pattern handoff</small></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Atelier — design preview (static mockup). Concept &amp; thumbnail for approval; not the production app.</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,21 @@
+# Render.com blueprint — alternative host to Railway.
+# Set ANTHROPIC_API_KEY (and optional STRIPE_/RESEND_ keys, ATELIER_PUBLIC_URL)
+# in the Render dashboard, not here.
+services:
+  - type: web
+    name: atelier
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ATELIER_PUBLIC_URL
+        sync: false
+      # Optional — uncomment when selling / emailing:
+      # - key: STRIPE_SECRET_KEY
+      #   sync: false
+      # - key: STRIPE_WEBHOOK_SECRET
+      #   sync: false
+      # - key: RESEND_API_KEY
+      #   sync: false

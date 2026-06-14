@@ -1,0 +1,17 @@
+anthropic>=0.40
+pydantic>=2.5
+pytest>=8.0
+reportlab>=4.0  # tech-pack PDF generation (pure-Python, no system deps)
+
+# Web app (the browser frontend + API that runs the pipeline)
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9  # multipart/form-data uploads
+httpx>=0.27             # used by FastAPI's TestClient (offline tests)
+
+# Optional integrations — only needed when their env vars are set:
+#   STRIPE_SECRET_KEY  -> payments (sellable)
+stripe>=8.0
+#   RESEND_API_KEY     -> email tech packs to a sewer (sendable). Uses urllib, no SDK.
+#   AGENT_MEMORY_BACKEND=supabase -> Supabase memory backend
+supabase>=2.0

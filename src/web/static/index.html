@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Atelier — inspiration in, sewer-ready tech pack out</title>
+<link rel="icon" href="/atelier-icon.svg"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+<link rel="manifest" href="/manifest.webmanifest"/>
+<meta name="theme-color" content="#6366f1"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Atelier"/>
+<link rel="stylesheet" href="/styles.css"/>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="brand">
+    <img class="icon" src="/atelier-icon.svg" alt="Atelier"/>
+    <div class="brandtext">
+      <h1>Atelier<b>.</b></h1>
+      <p class="tag" data-i18n="tagline">Inspiration in. Sewer-ready tech pack out.</p>
+    </div>
+    <div class="langsw" id="langsw" title="Interface + document language">
+      <button data-lang="en" class="on">EN</button><button data-lang="bg">BG</button>
+    </div>
+  </header>
+
+  <span class="accessbadge hidden" id="accessbadge"></span>
+
+  <!-- ONE screen: everything to make a tech pack -->
+  <section class="card" id="form">
+    <label class="lbl" data-i18n="s1_photos">Inspiration photos</label>
+    <div class="drop" id="drop">
+      <input type="file" id="files" accept="image/*" multiple hidden/>
+      <div class="thumbs" id="thumbs"></div>
+      <div class="dropcta" id="dropcta">
+        <div class="plus">+</div>
+        <p data-i18n="s1_drop">Drag photos here or tap to add</p>
+        <small id="droplimits"></small>
+      </div>
+    </div>
+
+    <label class="lbl" for="notes" data-i18n="s1_notes">Design notes</label>
+    <textarea id="notes" rows="3" placeholder="Oversized boxy fit, dropped shoulder. Camp collar. Chest patch pocket. Linen-cotton."></textarea>
+
+    <label class="lbl" data-i18n="s2_run">Size run</label>
+    <div class="sizes" id="sizes"></div>
+
+    <details class="adv" id="adv">
+      <summary data-i18n="more">More options</summary>
+      <div class="advgrid">
+        <div>
+          <label class="lbl" for="garment" data-i18n="s1_garment">Garment type</label>
+          <select id="garment"></select>
+        </div>
+        <div>
+          <label class="lbl" for="system" data-i18n="s2_system">Size system</label>
+          <select id="system"></select>
+        </div>
+        <div>
+          <label class="lbl" for="base" data-i18n="s2_base">Base size</label>
+          <select id="base"></select>
+        </div>
+      </div>
+    </details>
+
+    <label class="consent">
+      <input type="checkbox" id="consent"/>
+      <span id="consenttext"></span>
+    </label>
+
+    <button class="cta big" id="generate"></button>
+  </section>
+
+  <!-- progress / result / error -->
+  <section class="card hidden" id="step3">
+    <div id="progress" class="progress">
+      <div class="spinner"></div>
+      <h2 data-i18n="gen_title">Designing your tech pack…</h2>
+      <p class="muted" id="progressmsg" data-i18n="gen_msg">Claude is reading your references and drafting the spec. This takes ~1–2 min.</p>
+    </div>
+
+    <div id="result" class="hidden">
+      <div class="resulthead">
+        <div>
+          <h2 id="styleName">—</h2>
+          <p class="muted" id="styleMeta">—</p>
+        </div>
+        <div class="dlrow">
+          <a class="cta" id="dlpdf" data-i18n="dl_pdf">Download PDF</a>
+          <a class="ghost" id="dlcsv" data-i18n="dl_csv">POM .csv</a>
+        </div>
+      </div>
+
+      <iframe id="pdfframe" class="pdfframe" title="Tech pack preview"></iframe>
+
+      <div class="grid2">
+        <div class="blk">
+          <div class="bh" data-i18n="r_pom">Points of measure (base)</div>
+          <table id="pomtable"></table>
+        </div>
+        <div class="blk">
+          <div class="bh" data-i18n="r_bom">Bill of materials</div>
+          <ul class="bom" id="bomlist"></ul>
+        </div>
+      </div>
+
+      <div class="blk" id="emailbox">
+        <div class="bh" data-i18n="r_send">Send to your sewer</div>
+        <div class="row2">
+          <input type="email" id="emailto" placeholder="sewer@workshop.com"/>
+          <button class="cta" id="sendbtn" data-i18n="r_sendbtn">Email tech pack</button>
+        </div>
+        <input type="text" id="emailmsg" placeholder="Optional message…"/>
+        <p class="hint" id="emailstatus"></p>
+      </div>
+
+      <div class="actions">
+        <button class="cta" id="startover" data-i18n="r_again">Make another</button>
+        <button class="danger" id="deletebtn" data-i18n="r_delete">Delete my data</button>
+      </div>
+    </div>
+
+    <div id="error" class="hidden errorbox">
+      <h2 data-i18n="err_title">Something went wrong</h2>
+      <p id="errormsg" class="muted"></p>
+      <button class="cta" id="retry" data-i18n="err_retry">Try again</button>
+    </div>
+  </section>
+
+  <footer>
+    <span id="footernote"></span>
+    · <a href="/privacy.html" data-i18n="f_privacy">Privacy</a>
+    · <a href="/terms.html" data-i18n="f_terms">Terms</a>
+  </footer>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>

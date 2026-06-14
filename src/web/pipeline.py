@@ -62,11 +62,8 @@ def run_job(
         store.save(job)
 
         uploads = store.uploads_dir(job.id)
-        image_blocks = [
-            image_block_from_path(p)
-            for p in sorted(uploads.glob("*"))
-            if p.is_file()
-        ] if uploads.exists() else []
+        image_paths = [p for p in sorted(uploads.glob("*")) if p.is_file()] if uploads.exists() else []
+        image_blocks = [image_block_from_path(p) for p in image_paths]
 
         brief = brief_provider(
             notes=job.notes,
@@ -85,7 +82,8 @@ def run_job(
 
         pack = grade(brief, job.sizes, base_size=base, system=job.size_system)
         out_dir = store.job_dir(job.id)
-        paths = generate(pack, out_dir, stem="techpack", lang=job.lang)
+        # Embed the uploaded photos as the visual reference in the pack itself.
+        paths = generate(pack, out_dir, stem="techpack", lang=job.lang, images=image_paths)
 
         # Persist the brief next to the documents (re-render without another call).
         (out_dir / "techpack.json").write_text(

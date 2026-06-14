@@ -7,7 +7,7 @@
 **Location:** `~/Desktop/imago website/Autonomous AI Agents for Sale`
 **Status:** Working CLI **and web app**, verified end-to-end live (CLI on real photos; web app on a live notes→PDF run). Web app is deploy-ready; going live needs the owner's host/domain/Stripe accounts.
 **Last updated:** 2026-06-14
-**Tests:** 84 passing, fully offline (no API key/network needed).
+**Tests:** 87 passing, fully offline (no API key/network needed).
 
 ---
 
@@ -20,7 +20,7 @@
 - **European standards** (`src/techpack/standards.py`) — EN 13402 / EN ISO 8559 body-measurement charts per EU size, rendered into the PDF as a reference size chart.
 - **Parametric flat-sketch engine** (`src/techpack/flats.py`) — generates clean, symmetric front + back technical flats in code (tops, dresses, trousers, skirts). **Off by default in the PDF** (`ATELIER_INCLUDE_FLATS=1` to re-enable): the silhouettes are *generic* and were judged not to faithfully represent specific garments (e.g. a fitted ribbed-waist cardigan rendered as a boxy top), so they hurt credibility more than they help. Graded measurements are in the POM table regardless. The engine + label de-collision are kept and tested for when faithful, garment-specific silhouettes exist.
 - **Sketch renderer** (`src/techpack/sketch.py`) — pure-Python SVG-path → ReportLab vector renderer with the standard **line-weight hierarchy** (outline → seam → dashed topstitch → rib hatching). No SVG system libraries required.
-- **Documents** (`src/techpack/documents.py`) — generates the **PDF tech pack** (cover, design notes, graded POM table, EN 13402 size chart for EU runs, BOM, construction notes, final flats page with the size table) and the **POM CSV**. Fully localized EN/BG.
+- **Documents** (`src/techpack/documents.py`) — generates the **PDF tech pack** (cover, **embedded reference photo(s)** — the user's own uploads, via Pillow, so the visual matches the real garment; design notes; graded POM table; EN 13402 size chart for EU runs; BOM; construction notes) and the **POM CSV**. Parametric flats are off by default (see below). Fully localized EN/BG.
 - **Cyrillic fonts** (`src/techpack/fonts.py`) — resolves a Cyrillic-capable TTF so Bulgarian PDFs render (bundled DejaVu / system Arial Unicode), falls back to Helvetica for English.
 - **Image encoding** (`src/llm/images.py`) — turns image files into Claude vision blocks.
 - **LLM robustness** (`src/llm/client.py`) — single Anthropic wrapper; `.parse()` now **falls back to JSON mode + Pydantic validation** if the server's structured-output grammar compiler times out.

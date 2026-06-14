@@ -248,6 +248,37 @@ def test_pdf_omits_flats_by_default(tmp_path):
     assert write_pdf(pack, tmp_path / "noflats.pdf").read_bytes().startswith(b"%PDF")
 
 
+def test_header_separators_not_double_escaped():
+    from src.techpack.documents import _header
+    from src.techpack.fonts import resolve_fonts
+    parts = _header(_brief(), resolve_fonts(), "en")
+    subtitle = parts[1].text  # the meta line
+    assert "&amp;nbsp;" not in subtitle  # entity must render as a space, not literal
+    assert "&nbsp;" in subtitle and "·" in subtitle
+
+
+def test_pdf_embeds_reference_images(tmp_path):
+    import base64
+    png = base64.b64decode(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+    )
+    img = tmp_path / "ref.png"
+    img.write_bytes(png)
+    pack = grade(_brief(), ["S", "M", "L"])
+    with_img = write_pdf(pack, tmp_path / "withimg.pdf", images=[img]).read_bytes()
+    without = write_pdf(pack, tmp_path / "without.pdf").read_bytes()
+    assert with_img.startswith(b"%PDF")
+    assert len(with_img) > len(without)  # the embedded photo adds bytes
+
+
+def test_pdf_unreadable_image_is_skipped(tmp_path):
+    bad = tmp_path / "bad.png"
+    bad.write_bytes(b"not an image")
+    pack = grade(_brief(), ["S", "M"])
+    # Must not raise; just skips the bad image.
+    assert write_pdf(pack, tmp_path / "ok.pdf", images=[bad]).read_bytes().startswith(b"%PDF")
+
+
 # --- designer agent ---------------------------------------------------------
 
 # --- localisation (Bulgarian) ----------------------------------------------

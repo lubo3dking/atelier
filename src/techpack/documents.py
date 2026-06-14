@@ -19,6 +19,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.platypus import (
+    Image,
     KeepTogether,
     PageBreak,
     Paragraph,
@@ -63,6 +64,7 @@ LABELS = {
         "specification": "Specification",
         "qty": "Qty",
         "flats_title": "Technical flats & sizes",
+        "reference": "Reference images",
         "front": "Front",
         "back": "Back",
         "size_key": "Measurements by size",
@@ -91,6 +93,7 @@ LABELS = {
         "specification": "Спецификация",
         "qty": "Кол.",
         "flats_title": "Технически скици и размери",
+        "reference": "Референтни снимки",
         "front": "Отпред",
         "back": "Отзад",
         "size_key": "Мерки по размер",
@@ -123,8 +126,17 @@ def write_pom_csv(pack: GradedTechPack, path: str | Path, lang: str = "en") -> P
     return path
 
 
-def write_pdf(pack: GradedTechPack, path: str | Path, lang: str = "en") -> Path:
-    """Render the tech pack to a PDF file. Returns the path."""
+def write_pdf(
+    pack: GradedTechPack,
+    path: str | Path,
+    lang: str = "en",
+    images: list[str | Path] | None = None,
+) -> Path:
+    """Render the tech pack to a PDF file. Returns the path.
+
+    `images` are the uploaded inspiration photos; embedded as a visual reference
+    so the pack shows the actual garment.
+    """
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     brief = pack.brief
@@ -150,6 +162,9 @@ def write_pdf(pack: GradedTechPack, path: str | Path, lang: str = "en") -> Path:
 
     story = []
     story += _header(brief, fonts, lang)
+    ref = _reference_flowables(images, fonts, lang)
+    if ref:
+        story += _section(_t(lang, "reference"), ref, fonts)
     story += _section(_t(lang, "design_notes"), _paragraph(brief.design_notes or "—", fonts), fonts)
     story += _section(pom_heading, _pom_table(pack, fonts, lang), fonts)
     chart = body_chart(pack.system, pack.sizes)
@@ -169,13 +184,17 @@ def write_pdf(pack: GradedTechPack, path: str | Path, lang: str = "en") -> Path:
 
 
 def generate(
-    pack: GradedTechPack, out_dir: str | Path, stem: str | None = None, lang: str = "en"
+    pack: GradedTechPack,
+    out_dir: str | Path,
+    stem: str | None = None,
+    lang: str = "en",
+    images: list[str | Path] | None = None,
 ) -> dict[str, Path]:
     """Write both the PDF and the POM CSV into `out_dir`. Returns {'pdf', 'csv'}."""
     out_dir = Path(out_dir)
     stem = stem or _slug(pack.brief.style_code or pack.brief.style_name)
     return {
-        "pdf": write_pdf(pack, out_dir / f"{stem}.pdf", lang=lang),
+        "pdf": write_pdf(pack, out_dir / f"{stem}.pdf", lang=lang, images=images),
         "csv": write_pom_csv(pack, out_dir / f"{stem}-pom.csv", lang=lang),
     }
 
@@ -204,12 +223,17 @@ def _header(brief, fonts, lang) -> list:
     sub = ParagraphStyle(
         "Sub", fontName=fonts[0], fontSize=9.5, textColor=_MUTED, leading=13, spaceAfter=2
     )
-    meta = " &nbsp;·&nbsp; ".join(
-        x for x in [brief.garment_type, brief.fabric, f"{_t(lang, 'base')} {brief.base_size}"] if x
-    )
+    # Escape each part first, then join with the separator markup (escaping the
+    # whole joined string would turn the &nbsp; entities into literal text).
+    parts = [
+        _escape(x)
+        for x in [brief.style_code, brief.garment_type, brief.fabric,
+                  f"{_t(lang, 'base')} {brief.base_size}"]
+        if x
+    ]
     return [
         Paragraph(_escape(brief.style_name), title),
-        Paragraph(f"{_escape(brief.style_code)} &nbsp;·&nbsp; {_escape(meta)}", sub),
+        Paragraph(" &nbsp;·&nbsp; ".join(parts), sub),
         Spacer(1, 5 * mm),
     ]
 
@@ -223,6 +247,68 @@ def _section(heading: str, body, fonts) -> list:
     items += body if isinstance(body, list) else [body]
     items.append(Spacer(1, 4 * mm))
     return items
+
+
+def _reference_flowables(images, fonts, lang) -> list:
+    """Embed the uploaded inspiration photo(s) as a visual reference.
+
+    Loaded via Pillow (handles JPG/PNG/WebP/GIF) and re-encoded to JPEG so
+    ReportLab embeds them reliably. One photo is shown large; several form a
+    2-column grid. Any unreadable image is skipped, never fatal.
+    """
+    if not images:
+        return []
+    from io import BytesIO
+
+    try:
+        from PIL import Image as PILImage
+    except Exception:  # pragma: no cover - Pillow always present in this stack
+        return []
+
+    content_w = A4[0] - 36 * mm  # page width minus 18 mm margins each side
+    loaded: list[tuple[BytesIO, int, int]] = []
+    for p in images:
+        try:
+            im = PILImage.open(p)
+            im.load()
+            if im.mode not in ("RGB", "L"):
+                im = im.convert("RGB")
+            buf = BytesIO()
+            im.save(buf, format="JPEG", quality=85)
+            buf.seek(0)
+            loaded.append((buf, im.width, im.height))
+        except Exception:
+            continue
+    if not loaded:
+        return []
+
+    if len(loaded) == 1:
+        buf, w, h = loaded[0]
+        iw = min(content_w, 95 * mm)
+        ih = iw * h / w
+        if ih > 120 * mm:
+            ih, iw = 120 * mm, 120 * mm * w / h
+        img = Image(buf, width=iw, height=ih)
+        img.hAlign = "LEFT"
+        return [img]
+
+    # Several photos -> a compact 2-column grid.
+    cell_w = (content_w - 6 * mm) / 2
+    cells = []
+    for buf, w, h in loaded:
+        iw, ih = cell_w, cell_w * h / w
+        if ih > 80 * mm:
+            ih, iw = 80 * mm, 80 * mm * w / h
+        cells.append(Image(buf, width=iw, height=ih))
+    rows = [cells[i : i + 2] for i in range(0, len(cells), 2)]
+    if len(rows[-1]) == 1:
+        rows[-1].append("")
+    table = Table(rows, colWidths=[content_w / 2, content_w / 2])
+    table.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+    ]))
+    return [table]
 
 
 def _pom_table(pack: GradedTechPack, fonts, lang) -> Table:

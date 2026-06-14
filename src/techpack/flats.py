@@ -260,10 +260,38 @@ def build_sketches(spec: SketchSpec, points) -> list[FlatSketch]:
     ]
 
 
+# Minimum gap (box units) between two POM code labels so they never overlap.
+_LABEL_GAP = 6.0
+
+
 def _labels(points, anchors) -> list[SketchLabel]:
-    out = []
+    """Place POM code letters at their anchors, de-collided and off the placket.
+
+    Several points of measure share (or sit very near) the same anchor — e.g.
+    chest and bust, or the neck cluster — and the centre-front column carries the
+    button placket. Without spacing, the letters pile up and read as broken. We
+    nudge each label off the centre line and then stack any remaining collisions
+    so every code stays legible.
+    """
+    placed: list[tuple[float, float]] = []
+    out: list[SketchLabel] = []
     for pom in points or []:
         pos = anchors.get((pom.anchor or "").strip().lower())
-        if pos:
-            out.append(SketchLabel(x=pos[0], y=pos[1], text=pom.code))
+        if not pos:
+            continue
+        x, y = float(pos[0]), float(pos[1])
+        # Keep labels out of the centre-front placket / button column.
+        if abs(x - CF) < 7:
+            x = CF - 11
+        # Stack downward (then step to a new column) until clear of placed labels.
+        for _ in range(40):
+            clash = any(abs(px - x) < _LABEL_GAP and abs(py - y) < _LABEL_GAP for px, py in placed)
+            if not clash:
+                break
+            y += _LABEL_GAP
+            if y > 134:
+                y = float(pos[1])
+                x -= _LABEL_GAP
+        placed.append((x, y))
+        out.append(SketchLabel(x=round(x, 1), y=round(y, 1), text=pom.code))
     return out

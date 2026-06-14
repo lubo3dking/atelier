@@ -193,6 +193,31 @@ def test_build_sketches_returns_front_back_with_anchored_labels():
     assert "A" in codes and "Z" not in codes  # only anchored POMs get a label
 
 
+def test_sketch_labels_never_overlap():
+    """Many POMs share/cluster anchors; labels must be de-collided so they're legible."""
+    from src.schemas import PointOfMeasure as P
+    from src.schemas import SketchSpec
+    from src.techpack.flats import _LABEL_GAP, build_sketches
+
+    # Several POMs deliberately on the same / adjacent anchors + the centre line.
+    anchors = ["chest", "bust", "chest", "neck_width", "neck_drop", "shoulder",
+               "waist", "hip", "hem", "length", "sleeve_length", "cuff", "armhole"]
+    pts = [P(code=chr(65 + i), name=a, base_cm=1, tolerance_cm=1, grade_cm=1, anchor=a)
+           for i, a in enumerate(anchors)]
+    sk = build_sketches(SketchSpec(silhouette="top", opening="full", buttons=8), pts)
+
+    for sketch in sk:
+        labels = sketch.labels
+        for i in range(len(labels)):
+            for j in range(i + 1, len(labels)):
+                dx = abs(labels[i].x - labels[j].x)
+                dy = abs(labels[i].y - labels[j].y)
+                assert dx >= _LABEL_GAP - 0.05 or dy >= _LABEL_GAP - 0.05, (
+                    f"labels {labels[i].text}/{labels[j].text} overlap at "
+                    f"({labels[i].x},{labels[i].y}) ({labels[j].x},{labels[j].y})"
+                )
+
+
 def test_pdf_top_includes_parametric_flats(tmp_path):
     from src.schemas import SketchSpec
     brief = _brief()
